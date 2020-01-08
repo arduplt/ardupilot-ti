@@ -1,6 +1,7 @@
 #include "Plane.h"
 #include <AP_RSSI/AP_RSSI.h>
 #include <AP_OpticalFlow/AP_OpticalFlow.h>
+#include <AP_Ticommunication/AP_Ticommunication.h>
 
 /*
   read the rangefinder and update height estimate
@@ -82,4 +83,11 @@ void Plane::rpm_update(void)
             logger.Write_RPM(rpm_sensor);
         }
     }
+}
+
+// Sonin Aero
+
+void Plane::communicate_Ti (void)
+{
+	Ticommunication.update();
 }
