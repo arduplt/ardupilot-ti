@@ -7,6 +7,7 @@
 #include "AP_BattMonitor_Sum.h"
 #include "AP_BattMonitor_FuelFlow.h"
 #include "AP_BattMonitor_FuelLevel_PWM.h"
+#include "AP_BattMonitor_Ticommunication.h"
 
 #include <AP_HAL/AP_HAL.h>
 
@@ -165,6 +166,11 @@ AP_BattMonitor::init()
                 drivers[instance] = new AP_BattMonitor_FuelLevel_PWM(*this, state[instance], _params[instance]);
                 break;
 #endif // HAL_BATTMON_FUEL_ENABLE
+
+            case AP_BattMonitor_Params::BattMonitor_TYPE_Ticommunication:    // Sonin Aero
+            drivers[instance] = new AP_BattMonitor_Ticommunication(*this, state[instance], _params[instance]);
+            break;
+
             case AP_BattMonitor_Params::BattMonitor_TYPE_NONE:
             default:
                 break;
@@ -322,6 +328,8 @@ bool AP_BattMonitor::consumed_mah(float &mah, const uint8_t instance) const {
     }
 }
 
+// Sonin Aero
+
 /// consumed_wh - returns energy consumed since start-up in Watt.hours
 bool AP_BattMonitor::consumed_wh(float &wh, const uint8_t instance) const {
     if (instance < _num_instances && drivers[instance] != nullptr && drivers[instance]->has_consumed_energy()) {
@@ -341,6 +349,9 @@ uint8_t AP_BattMonitor::capacity_remaining_pct(uint8_t instance) const
         return 0;
     }
 }
+
+// Remaining Flight time in seconds Sonin Aero
+// Function is implemented in AP_BattMonitor_Ticommunication.h
 
 /// pack_capacity_mah - returns the capacity of the battery pack in mAh when the pack is full
 int32_t AP_BattMonitor::pack_capacity_mah(uint8_t instance) const

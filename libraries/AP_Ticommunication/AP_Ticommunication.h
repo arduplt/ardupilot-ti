@@ -25,7 +25,7 @@
 #include <AP_Math/AP_Math.h>
 
 /*
-*This library is for communication with the Texas Instruments microcontroller, connected via Serial
+*This library is for communication with the Texas Instruments Microcontroller, connected via Serial
 * 
 *
  */
@@ -40,9 +40,6 @@ public:
 
     // Requests backend to update the frontend. Should be called at 10Hz.
     void update(void);   // main loop function Sonin Aero ************************************************
-	
-	
-	
 	
 	
 	//  check if message is valid

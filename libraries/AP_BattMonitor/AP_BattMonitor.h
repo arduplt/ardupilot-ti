@@ -46,6 +46,7 @@ class AP_BattMonitor
     friend class AP_BattMonitor_Sum;
     friend class AP_BattMonitor_FuelFlow;
     friend class AP_BattMonitor_FuelLevel_PWM;
+    friend class AP_BattMonitor_Ticommunication;
 
 public:
 
@@ -90,6 +91,8 @@ public:
         bool        healthy;                   // battery monitor is communicating correctly
         bool        is_powering_off;           // true when power button commands power off
         bool        powerOffNotified;          // only send powering off notification once
+        uint8_t     state_of_charge; // only used with Ticommunication Sonin Aero
+        uint32_t    time_remaining;  // Sonin Aero flight time remaining in Seconds
     };
 
     // Return the number of battery monitor instances
@@ -126,6 +129,10 @@ public:
     /// capacity_remaining_pct - returns the % battery capacity remaining (0 ~ 100)
     virtual uint8_t capacity_remaining_pct(uint8_t instance) const;
     uint8_t capacity_remaining_pct() const { return capacity_remaining_pct(AP_BATT_PRIMARY_INSTANCE); }
+
+    uint32_t time_remaining(uint8_t instance) const { return state[instance].time_remaining;}
+    // returns the remaining flight time in seconds Sonin Aero
+
 
     /// pack_capacity_mah - returns the capacity of the battery pack in mAh when the pack is full
     int32_t pack_capacity_mah(uint8_t instance) const;

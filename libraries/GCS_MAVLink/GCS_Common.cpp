@@ -239,7 +239,7 @@ void GCS_MAVLINK::send_battery_status(const uint8_t instance) const
                                     consumed_mah, // total consumed current in milliampere.hour
                                     consumed_wh,  // consumed energy in hJ (hecto-Joules)
                                     battery.capacity_remaining_pct(instance),
-                                    0, // time remaining, seconds (not provided)
+									battery.time_remaining(instance) , // time remaining, seconds // Sonin Aero provided by Ticommunication
                                     MAV_BATTERY_CHARGE_STATE_UNDEFINED);
 }
 

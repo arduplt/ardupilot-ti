@@ -17,6 +17,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_BattMonitor.h"
 #include "AP_BattMonitor_Backend.h"
+#include <AP_Ticommunication/AP_Ticommunication.h>           // Sonin Aero
 
 /*
   base class constructor.
@@ -33,6 +34,10 @@ AP_BattMonitor_Backend::AP_BattMonitor_Backend(AP_BattMonitor &mon, AP_BattMonit
 /// capacity_remaining_pct - returns the % battery capacity remaining (0 ~ 100)
 uint8_t AP_BattMonitor_Backend::capacity_remaining_pct() const
 {
+	if (_params.BattMonitor_TYPE_Ticommunication) {    // Sonin Aero
+	   return _state.state_of_charge;
+	}
+
     float mah_remaining = _params._pack_capacity - _state.consumed_mah;
     if ( _params._pack_capacity > 10 ) { // a very very small battery
         return MIN(MAX((100 * (mah_remaining) / _params._pack_capacity), 0), UINT8_MAX);
