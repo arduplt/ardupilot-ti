@@ -23,6 +23,7 @@
 
 
 
+
 extern const AP_HAL::HAL& hal;
 
 /*
@@ -41,7 +42,12 @@ AP_Ticommunication::AP_Ticommunication()
 void AP_Ticommunication::init(void)
 {
 	// Search for the Port assigned to Ticommunication
-	port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Ticommunication, 0);
+	//port = hal.uartD;
+
+	if (port != NULL) 		gcs().send_text(MAV_SEVERITY_WARNING, "We have found the port");
+	else 		gcs().send_text(MAV_SEVERITY_WARNING, "We have not found the TI port");
+
+
         return;
 }
 
@@ -49,27 +55,51 @@ void AP_Ticommunication::init(void)
 
 void AP_Ticommunication::update(void)
 {
-    if (!port) {    // If port pointer points to NULL return
-        return;
-    }
 
-    // uint32_t now = AP_HAL::millis();
-	
-    // read any available lines from the Ti
-    //    if character "<" is received it means we have received the beginning of a packet
-    //    from HC to Pixhawk < 1, 74, 422> where 1 is the Opcode, 74 the state of charge %, 422 remaining flight time in minutes
+
+
+
+	port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Ticommunication, 0);
+	//port = hal.uartD;
+
+	// if (port == hal.uartD)
+	// {
+	// 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
+	// }
+
 
     int16_t nbytes = port->available();
+
 	bool message_start_found = false;
     int buffer_count;
-	if (is_healthy()) {     // Send Heartbeat <1> if connection is Healthy 
-	port->write("<1>");
-	}
+
+    if (nbytes >0) {
+    port->print("1");
+    port->print("AAA");
+    }
+    if (nbytes<=0)
+    {
+    	port->print("0");
+    }
+    //gcs().send_text(MAV_SEVERITY_WARNING, "We have assigned uartD");
+	//port->write('<');
+
+	//port->printf((char)nbytes);
+	//port->write('1');
+	//port->write('>');
+	//}
     
-	if (nbytes >= 10) {
+	if (nbytes >0) {
+
+		gcs().send_text(MAV_SEVERITY_WARNING, "We are receiving bytes nbytes>0");
+
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
+        //const char *b = &c;
+        //port-> print(b);
+
         if (c == '<' ) {                     // Start of one message
+        	//gcs().send_text(MAV_SEVERITY_WARNING, "we have found the start of the message");
             buffer_count = 0;
 			message_start_found = true;
         }
@@ -77,12 +107,14 @@ void AP_Ticommunication::update(void)
 		if (message_start_found == false) continue;  // we did not find the start of the message yet, continue searching for it
 		
 		// This code only executes if the message Start "<" was found
+		if (c == ' ') continue;
         buffer[buffer_count] = c;
 		buffer_count++;
 		
 		if (buffer_count==10) {
 			if (check_message ()) {
 			    // A valid message is in the buffer
+				gcs().send_text(MAV_SEVERITY_WARNING, "A valid message is in the buffer");
 				last_updated_ms = AP_HAL::millis();
 				break;             // break the while loop
 			}
@@ -91,12 +123,19 @@ void AP_Ticommunication::update(void)
 			    continue;	}
 		}
 	}
-	
-	}  // Endif nbytes >=10
+
 
 	
+	}  //else  {
+	//	gcs().send_text(MAV_SEVERITY_WARNING, "we are not receiving bytes");
+	//}// Endif nbytes >0
+
+	if (is_healthy()) {
+		gcs().send_text(MAV_SEVERITY_WARNING, "connection healthy");
+		port-> print ("<1>");// Send Heartbeat <1> if connection is Healthy
+	}
 	
-	
+
 }
 	
 bool AP_Ticommunication::check_message()
@@ -122,7 +161,7 @@ bool AP_Ticommunication::check_message()
 
 bool AP_Ticommunication::is_healthy()       // Sonin Aero: Check Signal, if Healthy return TRUE and send <1> to Ticommunication
 {
-	if (port && (AP_HAL::millis() - last_updated_ms) < 3000) {     // check if last Update is less than 3000 ms ago
+	if (port  && (AP_HAL::millis() - last_updated_ms) < 3000 ) {     // check if last Update is less than 3000 ms ago
 		return true;
 	}
     else return false;    
@@ -131,6 +170,7 @@ bool AP_Ticommunication::is_healthy()       // Sonin Aero: Check Signal, if Heal
 
 
 int  AP_Ticommunication::get_soc() {
+	//gcs().send_text(MAV_SEVERITY_WARNING, "Calculating SOC");
 	int soc;
 	char soc_buffer [2];
 	soc_buffer[0]= buffer [3];

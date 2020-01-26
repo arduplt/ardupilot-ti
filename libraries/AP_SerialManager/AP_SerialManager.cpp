@@ -120,7 +120,7 @@ const AP_Param::GroupInfo AP_SerialManager::var_info[] = {
     // @Description: The baud rate of the Telem2 port. Most stm32-based boards can support rates of up to 1500. If you setup a rate you cannot support and then can't connect to your board you should load a firmware from a different vehicle type. That will reset all your parameters to defaults.
     // @Values: 1:1200,2:2400,4:4800,9:9600,19:19200,38:38400,57:57600,111:111100,115:115200,256:256000,500:500000,921:921600,1500:1500000
     // @User: Standard
-    AP_GROUPINFO("2_BAUD", 4, AP_SerialManager, state[2].baud, AP_SERIALMANAGER_MAVLINK_BAUD/1000),
+    AP_GROUPINFO("2_BAUD", 4, AP_SerialManager, state[2].baud, AP_SERIALMANAGER_TICOM_BAUD/1000),
 #endif
 
 #if SERIALMANAGER_NUM_PORTS > 3
@@ -416,7 +416,9 @@ void AP_SerialManager::init()
                     break;
                 case SerialProtocol_Ticommunication:   // Sonin Aero
                     // state[i].protocol.set_and_save(SerialProtocol_Rangefinder);
-					state[i].uart->begin(map_baudrate(state[i].baud));    // Sonin Aero
+					state[i].uart->begin(map_baudrate(state[i].baud));
+							//AP_SERIALMANAGER_TICOM_BUFSIZE_RX,
+							//AP_SERIALMANAGER_TICOM_BUFSIZE_TX);    // Sonin Aero
                     break;
                 case SerialProtocol_Volz:
                                     // Note baudrate is hardcoded to 115200

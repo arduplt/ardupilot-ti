@@ -52,6 +52,12 @@
 #define AP_SERIALMANAGER_MAVLINK_BUFSIZE_RX     128
 #define AP_SERIALMANAGER_MAVLINK_BUFSIZE_TX     256
 
+// Ticommunication default baud rates and buffer sizes // Sonin Aero
+
+#define AP_SERIALMANAGER_TICOM_BAUD           9600
+#define AP_SERIALMANAGER_TICOM_BUFSIZE_RX     128
+#define AP_SERIALMANAGER_TICOM_BUFSIZE_TX     16
+
 // LTM buffer sizes
 #define AP_SERIALMANAGER_LTM_BUFSIZE_RX         0
 #define AP_SERIALMANAGER_LTM_BUFSIZE_TX         32
@@ -85,11 +91,6 @@
 #define AP_SERIALMANAGER_ROBOTIS_BUFSIZE_TX  128
 
 // MegaSquirt EFI protocol
-#define AP_SERIALMANAGER_EFI_MS_BAUD           115
-#define AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX     512
-#define AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX     16
-
-// Ticommunication protocol    // Sonin Aero
 #define AP_SERIALMANAGER_EFI_MS_BAUD           115
 #define AP_SERIALMANAGER_EFI_MS_BUFSIZE_RX     512
 #define AP_SERIALMANAGER_EFI_MS_BUFSIZE_TX     16

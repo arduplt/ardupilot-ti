@@ -39,13 +39,17 @@ public:
     void init(void);          // chkd
 
     // Requests backend to update the frontend. Should be called at 10Hz.
-    void update(void);   // main loop function Sonin Aero ************************************************
+    void update();   // main loop function Sonin Aero ************************************************
 	
 	
 	//  check if message is valid
 	
 	bool check_message();
     
+
+	char buffer[10];   // used to store incoming values
+
+
     // Returns the State of charge
     int get_soc() ; 
 	
@@ -67,8 +71,8 @@ private:
     // Front End Parameters
     //AP_Int8 type;
 	
-	char buffer[10];   // used to store incoming values
 	
+
 	uint32_t last_updated_ms;
 
     // Tracking backends
