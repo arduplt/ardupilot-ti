@@ -128,7 +128,7 @@ void AP_Ticommunication::update(void)
 
 	
 	}   else  {
-	 	gcs().send_text(MAV_SEVERITY_WARNING, "we are not receiving bytes");
+	 	gcs().send_text(MAV_SEVERITY_INFO, "we are not receiving bytes");
 	 }// Endif nbytes >0
 
 	// if (is_healthy()) {

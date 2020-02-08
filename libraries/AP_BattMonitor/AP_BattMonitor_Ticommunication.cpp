@@ -53,14 +53,24 @@ void AP_BattMonitor_Ticommunication::read()
 
     _state.last_time_micros = now_us;
 
+    if (!Ticommunication.is_healthy())
+    {
+        gcs().send_text(MAV_SEVERITY_CRITICAL, "TI connection not healthy!");
+        _state.current_amps = 0;
+        _state.consumed_mah = 0;
+        _state.consumed_wh =  0;
+        _state.state_of_charge= 0;
+        _state.state_of_charge = 0;
+    }
+    else {
     // map amps to liters /hour
-    _state.current_amps = 3 ; // We can get this variable if needed from the Ticom using Ticom.current_amps (not yet implemented)
+    _state.current_amps = 1 ; // We can get this variable if needed from the Ticom using Ticom.current_amps (not yet implemented)
 
     // map consumed_mah to consumed milliliters
-    _state.consumed_mah = 40;   // has to be sent from Ticom.consumedlitres (not yet implemented)
+    _state.consumed_mah = 10;   // has to be sent from Ticom.consumedlitres (not yet implemented)
 
     // map consumed_wh using fixed voltage of 1
-    _state.consumed_wh = 20;   // has to be sent from Ticom.consumedWH
+    _state.consumed_wh = 40;   // has to be sent from Ticom.consumedWH
 
      // We get this info from Ticom get_soc() function
     if (Ticommunication.get_soc() == 0){ _state.state_of_charge= oldSOC;}
@@ -78,4 +88,5 @@ void AP_BattMonitor_Ticommunication::read()
     _state.time_remaining = Ticommunication.get_remaining_flight_time(); // Get remaining flight time in minutes
     gcs().send_text(MAV_SEVERITY_CRITICAL, "Flight time remaining: %d min.", (int)_state.time_remaining);
 
+    } // end of else statement
 }
