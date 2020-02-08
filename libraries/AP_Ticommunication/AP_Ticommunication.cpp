@@ -73,10 +73,10 @@ void AP_Ticommunication::update(void)
 	bool message_start_found = false;
     int buffer_count;
 
-     if (nbytes >0) {
-     port->print("<1>");
+    // if (nbytes >0) {
+    // port->print("<1>");
     //port->print("AAA");
-    }
+    //}
     if (nbytes<=0)
     {
     	port->print("0");
@@ -91,7 +91,8 @@ void AP_Ticommunication::update(void)
     
 	if (nbytes >0) {
 
-		gcs().send_text(MAV_SEVERITY_WARNING, "We are receiving bytes nbytes>0");
+		//gcs().send_text(MAV_SEVERITY_WARNING, "We are receiving bytes nbytes>0");
+		port->print("<1>");
 
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
@@ -114,7 +115,7 @@ void AP_Ticommunication::update(void)
 		if (buffer_count==10) {
 			if (check_message ()) {
 			    // A valid message is in the buffer
-				gcs().send_text(MAV_SEVERITY_WARNING, "A valid message is in the buffer");
+				//gcs().send_text(MAV_SEVERITY_WARNING, "A valid message is in the buffer");
 				last_updated_ms = AP_HAL::millis();
 				break;             // break the while loop
 			}
@@ -130,10 +131,10 @@ void AP_Ticommunication::update(void)
 	 	gcs().send_text(MAV_SEVERITY_WARNING, "we are not receiving bytes");
 	 }// Endif nbytes >0
 
-	if (is_healthy()) {
-		gcs().send_text(MAV_SEVERITY_WARNING, "connection healthy");
+	// if (is_healthy()) {
+	// gcs().send_text(MAV_SEVERITY_WARNING, "connection healthy");
 	//	port-> print ("<1>");// Send Heartbeat <1> if connection is Healthy
-	}
+	// }
 	
 
 }
@@ -187,11 +188,11 @@ int AP_Ticommunication::get_remaining_flight_time () {
 	char rft_buffer [3];
 	rft_buffer[0]= buffer [6];
 	rft_buffer[1]= buffer [7];
-	rft_buffer[1]= buffer [8];
+	rft_buffer[2]= buffer [8];
 	
 	remaining_flight_time = atoi(rft_buffer);
 	
-	return remaining_flight_time;	
+	return remaining_flight_time;	// in minutes
 }
 
 /*

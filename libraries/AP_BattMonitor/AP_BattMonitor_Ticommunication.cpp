@@ -75,5 +75,7 @@ void AP_BattMonitor_Ticommunication::read()
 
 //    _state.state_of_charge = Ticommunication.get_soc();  // We get this info from Ticom get_soc() function
 
-    _state.time_remaining = (Ticommunication.get_remaining_flight_time())*60 ; // Get remaining flight time in seconds
+    _state.time_remaining = Ticommunication.get_remaining_flight_time(); // Get remaining flight time in minutes
+    gcs().send_text(MAV_SEVERITY_CRITICAL, "Flight time remaining: %d min.", (int)_state.time_remaining);
+
 }
