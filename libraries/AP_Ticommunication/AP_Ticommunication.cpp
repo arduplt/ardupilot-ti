@@ -62,10 +62,10 @@ void AP_Ticommunication::update(void)
 	port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Ticommunication, 0);
 	//port = hal.uartD;
 
-	// if (port == hal.uartD)
-	// {
-	// 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
-	// }
+	/*  if (port == hal.uartD)
+	 {
+	 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
+	 }*/
 
 
     int16_t nbytes = port->available();
@@ -73,9 +73,9 @@ void AP_Ticommunication::update(void)
 	bool message_start_found = false;
     int buffer_count;
 
-    if (nbytes >0) {
-    port->print("1");
-    port->print("AAA");
+     if (nbytes >0) {
+     port->print("<1>");
+    //port->print("AAA");
     }
     if (nbytes<=0)
     {
@@ -95,8 +95,8 @@ void AP_Ticommunication::update(void)
 
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
-        //const char *b = &c;
-        //port-> print(b);
+         //const char *b = &c;
+         //port-> print(b);
 
         if (c == '<' ) {                     // Start of one message
         	//gcs().send_text(MAV_SEVERITY_WARNING, "we have found the start of the message");
@@ -126,13 +126,13 @@ void AP_Ticommunication::update(void)
 
 
 	
-	}  //else  {
-	//	gcs().send_text(MAV_SEVERITY_WARNING, "we are not receiving bytes");
-	//}// Endif nbytes >0
+	}   else  {
+	 	gcs().send_text(MAV_SEVERITY_WARNING, "we are not receiving bytes");
+	 }// Endif nbytes >0
 
 	if (is_healthy()) {
 		gcs().send_text(MAV_SEVERITY_WARNING, "connection healthy");
-		port-> print ("<1>");// Send Heartbeat <1> if connection is Healthy
+	//	port-> print ("<1>");// Send Heartbeat <1> if connection is Healthy
 	}
 	
 

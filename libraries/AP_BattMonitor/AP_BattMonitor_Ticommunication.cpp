@@ -19,7 +19,7 @@ AP_BattMonitor_Ticommunication::AP_BattMonitor_Ticommunication(AP_BattMonitor &m
 {
 
 
-    _state.voltage = 7.0; // show a fixed voltage of 7v
+    _state.voltage = 5.0; // show a fixed voltage of 5v
 
 
     // We can tell if this is healthy with the is healthy function
@@ -62,11 +62,18 @@ void AP_BattMonitor_Ticommunication::read()
     // map consumed_wh using fixed voltage of 1
     _state.consumed_wh = 20;   // has to be sent from Ticom.consumedWH
 
+     // We get this info from Ticom get_soc() function
+    if (Ticommunication.get_soc() == 0){ _state.state_of_charge= oldSOC;}
+
+
     if (Ticommunication.get_soc() > 0) {
-    	gcs().send_text(MAV_SEVERITY_WARNING, "SOC is bigger than 0");
+    	//gcs().send_text(MAV_SEVERITY_WARNING, "SOC is bigger than 0");
+    	_state.state_of_charge = Ticommunication.get_soc();
+    	oldSOC=_state.state_of_charge;
     }
 
-    _state.state_of_charge = Ticommunication.get_soc();  // We get this info from Ticom get_soc() function
+
+//    _state.state_of_charge = Ticommunication.get_soc();  // We get this info from Ticom get_soc() function
 
     _state.time_remaining = (Ticommunication.get_remaining_flight_time())*60 ; // Get remaining flight time in seconds
 }

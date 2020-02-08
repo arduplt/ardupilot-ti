@@ -27,6 +27,8 @@ public:
 
     void init(void) override {}
 
+    uint8_t oldSOC;
+
 private:
 
 
