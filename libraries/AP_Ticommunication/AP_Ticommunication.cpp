@@ -15,19 +15,11 @@
 
 #include "AP_Ticommunication.h"
 
-#include <AP_Logger/AP_Logger.h>
-
-#include <AP_HAL/AP_HAL.h>
-
-#include <AP_SerialManager/AP_SerialManager.h>
-
-
-
 
 extern const AP_HAL::HAL& hal;
 
-/*
-AP_Ticommunication::AP_Ticommunication()
+
+/* AP_Ticommunication::AP_Ticommunication(void)
 {
     //AP_Param::setup_object_defaults(this, var_info);
 
@@ -35,8 +27,8 @@ AP_Ticommunication::AP_Ticommunication()
         AP_HAL::panic("AP_Ticommunication must be singleton");
     }
     _singleton = this;
-}
-*/
+}*/
+
 
 // Initialize backends based on existing params
 void AP_Ticommunication::init(void)
@@ -93,6 +85,43 @@ void AP_Ticommunication::update(void)
 
 		//gcs().send_text(MAV_SEVERITY_WARNING, "We are receiving bytes nbytes>0");
 		port->print("<1>");
+	    //mavlink_system_time_t *utime;
+	    //uint64_t now = 0;
+	    //AP::rtc().get_utc_usec(now);
+	    AP_RTC &rtc = AP::rtc();
+
+	   // int now = time_unix / 1000000;
+	    uint64_t kinda_now = 1565918797000000;
+	    // rtc.set_utc_usec(kinda_now, AP_RTC::SOURCE_MAVLINK_SYSTEM_TIME);
+	       // hal.console->printf("%s: Test run %u\n", __FILE__, (unsigned)run_counter++);
+	        uint64_t now = 0;
+	        if (!rtc.get_utc_usec(now)) {
+	        	hal.console->printf("failed to get rtc");
+	            return;
+	        }
+	        hal.console->printf("Now=%llu\n", (long long unsigned)now);
+	        if (now < kinda_now) {
+	        	hal.console->printf("time going backwards");
+	            return;
+	        }
+
+	    //int time_b;
+	    //time_b = time_s/1000;
+	    //std::string s;
+	    //s = std:: to_string(time_s);
+	    //char time_b[10];
+	    //time_b=	(char [10])time_s;
+	    //const char *s = &time_s;
+	    int b = now/1000000;
+	    gcs().send_text(MAV_SEVERITY_CRITICAL, "RTC EPOCH Time: %d s.", (int)b);
+	    char t[10];
+	    itoa(b , t , 10);
+		port->print("<2,");
+		for (int j=0; j< 10 ; j++)
+		{
+		port->print(&t[j]);
+		}
+		port->print(">");
 
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
@@ -143,11 +172,11 @@ bool AP_Ticommunication::check_message()
 {
 	
 	
-	if (buffer[0] != '<' || buffer[2] != ',' || buffer[5] != ',' || buffer[9] != '>') return false;  // Check message structure < x,xx,xxx>
+	if (buffer[0] != '<' || buffer[2] != ',' || buffer[5] != ',' || buffer[9] != ',' || buffer[15]!= '>') return false;  // Check message structure < x,xx,xxx,xxxxx>
 	
-	int number_index[]={1,3,4,6,7,8};
+	int number_index[]={1,3,4,6,7,8,10,11,12,13,14};
 	
-	for (int i=0; i <= 5 ; i++)
+	for (int i=0; i <= 9 ; i++)
 	{
 		if ( buffer[number_index[i]] > '9' || buffer[number_index[i]] < '0' ) return false;
 		else continue; // check if x xx xxx are numbers from 0-9
@@ -193,6 +222,21 @@ int AP_Ticommunication::get_remaining_flight_time () {
 	remaining_flight_time = atoi(rft_buffer);
 	
 	return remaining_flight_time;	// in minutes
+}
+
+int AP_Ticommunication::get_RPM () {
+
+	int RPM;
+	char rpm_buffer [5];
+	rpm_buffer[0]= buffer [10];
+	rpm_buffer[1]= buffer [11];
+	rpm_buffer[2]= buffer [12];
+	rpm_buffer[3]= buffer [13];
+	rpm_buffer[4]= buffer [14];
+
+	RPM = atoi(rpm_buffer);
+
+	return RPM;	// in rounds per minute
 }
 
 /*

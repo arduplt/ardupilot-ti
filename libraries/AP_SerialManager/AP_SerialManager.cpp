@@ -416,7 +416,9 @@ void AP_SerialManager::init()
                     break;
                 case SerialProtocol_Ticommunication:   // Sonin Aero
                     // state[i].protocol.set_and_save(SerialProtocol_Rangefinder);
-					state[i].uart->begin(map_baudrate(state[i].baud));
+					state[i].uart->begin(map_baudrate(state[i].baud),
+							       AP_SERIALMANAGER_TICOM_BUFSIZE_RX,
+								   AP_SERIALMANAGER_TICOM_BUFSIZE_TX);
 							//AP_SERIALMANAGER_TICOM_BUFSIZE_RX,
 							//AP_SERIALMANAGER_TICOM_BUFSIZE_TX);    // Sonin Aero
                     break;

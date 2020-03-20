@@ -44,6 +44,7 @@
 #include <AP_NavEKF3/AP_NavEKF3.h>
 #include <AP_Mission/AP_Mission.h>     // Mission command library
 #include <AC_AttitudeControl/AC_AttitudeControl_Multi.h> // Attitude control library
+//#include <AP_Ticommunication/AP_Ticommunication.h> // Sonin Aero
 #include <AC_AttitudeControl/AC_AttitudeControl_Heli.h> // Attitude control library for traditional helicopter
 #include <AC_AttitudeControl/AC_PosControl.h>      // Position control library
 #include <AP_Motors/AP_Motors.h>          // AP Motors library
@@ -317,6 +318,10 @@ private:
 #if RPM_ENABLED == ENABLED
     AP_RPM rpm_sensor;
 #endif
+
+    // Sonin Aero Ticommunication
+
+//    AP_Ticommunication Ticommunication;
 
     // Inertial Navigation EKF - different viewpoint
     AP_AHRS_View *ahrs_view;
@@ -846,6 +851,7 @@ private:
     void read_barometer(void);
     void init_rangefinder(void);
     void read_rangefinder(void);
+	void communicate_Ti (void);  // Sonin Aero
     bool rangefinder_alt_ok();
     bool rangefinder_up_ok();
     void rpm_update();
@@ -858,6 +864,7 @@ private:
     void init_visual_odom();
     void winch_init();
     void winch_update();
+
 
     // switches.cpp
     void save_trim();

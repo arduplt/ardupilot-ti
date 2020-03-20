@@ -24,6 +24,15 @@
 #include <AP_HAL/AP_HAL.h>
 #include <AP_Math/AP_Math.h>
 
+#include <AP_Logger/AP_Logger.h>
+
+#include <AP_SerialManager/AP_SerialManager.h>
+
+#include <AP_RTC/AP_RTC.h>
+
+#include <string>
+
+
 /*
 *This library is for communication with the Texas Instruments Microcontroller, connected via Serial
 * 
@@ -57,6 +66,8 @@ public:
 	
 	int get_remaining_flight_time () ;
 	
+	int get_RPM();
+
 	// Send heartbeat from Pixhawk to Ti
 	
 	void send_heartbeat();

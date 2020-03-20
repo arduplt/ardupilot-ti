@@ -227,3 +227,12 @@ void Copter::winch_update()
     g2.winch.update();
 #endif
 }
+
+
+// Sonin Aero
+/*
+void Copter::communicate_Ti (void)
+{
+	Ticommunication.update();
+
+}*/

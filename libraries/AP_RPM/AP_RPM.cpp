@@ -25,7 +25,7 @@ const AP_Param::GroupInfo AP_RPM::var_info[] = {
     // @Param: _TYPE
     // @DisplayName: RPM type
     // @Description: What type of RPM sensor is connected
-    // @Values: 0:None,1:PWM,2:AUXPIN,3:EFI
+    // @Values: 0:None,1:PWM,2:AUXPIN,3:EFI, 4: Ticommunication
     // @User: Standard
     AP_GROUPINFO("_TYPE",    0, AP_RPM, _type[0], 0),
 
