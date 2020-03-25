@@ -231,8 +231,8 @@ void Copter::winch_update()
 
 // Sonin Aero
 /*
-void Copter::communicate_Ti (void)
+void Copter::Ticomu (void)
 {
-	Ticommunication.update();
+	Ticom.update();
 
 }*/

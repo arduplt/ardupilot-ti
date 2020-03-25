@@ -17,6 +17,7 @@
 #include "RPM_Pin.h"
 #include "RPM_SITL.h"
 #include "RPM_EFI.h"
+#include "RPM_TI.h"
 
 extern const AP_HAL::HAL& hal;
 
@@ -119,12 +120,18 @@ void AP_RPM::init(void)
         if (type == RPM_TYPE_PIN) {
             drivers[i] = new AP_RPM_Pin(*this, i, state[i]);
         }
+        if (type == RPM_TYPE_TI) {
+            drivers[i] = new AP_RPM_TI(*this, i, state[i]);
+        }
 #endif
 #if EFI_ENABLED
         if (type == RPM_TYPE_EFI) {
             drivers[i] = new AP_RPM_EFI(*this, i, state[i]);
         }
 #endif
+
+
+
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
         if (drivers[i] == nullptr) {
             drivers[i] = new AP_RPM_SITL(*this, i, state[i]);

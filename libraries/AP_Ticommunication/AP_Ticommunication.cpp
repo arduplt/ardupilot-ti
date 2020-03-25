@@ -18,20 +18,8 @@
 
 extern const AP_HAL::HAL& hal;
 
-
-/* AP_Ticommunication::AP_Ticommunication(void)
-{
-    //AP_Param::setup_object_defaults(this, var_info);
-
-    if (_singleton != nullptr) {
-        AP_HAL::panic("AP_Ticommunication must be singleton");
-    }
-    _singleton = this;
-}*/
-
-
 // Initialize backends based on existing params
-void AP_Ticommunication::init(void)
+/*void AP_Ticommunication::init(void)
 {
 	// Search for the Port assigned to Ticommunication
 	//port = hal.uartD;
@@ -41,16 +29,32 @@ void AP_Ticommunication::init(void)
 
 
         return;
+}*/
+
+
+AP_Ticommunication::AP_Ticommunication(void)
+{
+    //AP_Param::setup_object_defaults(this, var_info);
+
+	last_updated_ms=0;
+
+	if (port != NULL) 		gcs().send_text(MAV_SEVERITY_WARNING, "We have found the port");
+		else 		gcs().send_text(MAV_SEVERITY_WARNING, "We have not found the TI port");
+
+
+
+    if (_singleton != nullptr) {
+        AP_HAL::panic("AP_Ticommunication must be singleton");
+    }
+    _singleton = this;
 }
+
+
 
 
 
 void AP_Ticommunication::update(void)
 {
-
-
-
-
 	port = AP::serialmanager().find_serial(AP_SerialManager::SerialProtocol_Ticommunication, 0);
 	//port = hal.uartD;
 
@@ -239,14 +243,16 @@ int AP_Ticommunication::get_RPM () {
 	return RPM;	// in rounds per minute
 }
 
-/*
+// singleton instance
+AP_Ticommunication *AP_Ticommunication::_singleton;
+
 namespace AP {
-AP_Ticommunication *Ticommunication()
+AP_Ticommunication *Ticom()
 {
     return AP_Ticommunication::get_singleton();
 }
 }
-*/
+
 extern const AP_HAL::HAL &hal;
 
 

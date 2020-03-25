@@ -44,9 +44,34 @@ extern const AP_HAL::HAL& hal;
     _singleton = this;
 }*/
 
+AP_BattMonitor_Ticommunication *AP_BattMonitor_Ticommunication::singleton;
+
+
+
+// Initialize parameters
+
+//AP_BattMonitor_Ticommunication Ticom;   // Creating 1 Object Ticom
+
+AP_BattMonitor_Ticommunication::AP_BattMonitor_Ticommunication(AP_BattMonitor &mon,
+                                                 AP_BattMonitor::BattMonitor_State &mon_state,
+                                                 AP_BattMonitor_Params &params) :
+    AP_BattMonitor_Backend(mon, mon_state, params)
+{
+
+
+    _state.voltage = 5.0; // show a fixed voltage of 5v
+
+
+
+    // We can tell if this is healthy with the is healthy function
+    _state.healthy = is_healthy() ;
+
+    singleton = this;
+
+}
 
 // Initialize backends based on existing params
-void AP_Ticommunication::init(void)
+void AP_BattMonitor_Ticommunication::init(void)
 {
 	// Search for the Port assigned to Ticommunication
 	//port = hal.uartD;
@@ -61,18 +86,14 @@ void AP_Ticommunication::init(void)
 
 
 
-void AP_Ticommunication::update(void)
+void AP_BattMonitor_Ticommunication::update(void)
 {
-
-
-
-
 	//port = hal.uartD;
-
-	/*  if (port == hal.uartD)
+	//gcs().send_text(MAV_SEVERITY_WARNING, "We are in BattmonTicom update");
+	   if (port == hal.uartD)
 	 {
 	 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
-	 }*/
+	 }
 
 
     int16_t nbytes = port->available();
@@ -87,6 +108,8 @@ void AP_Ticommunication::update(void)
     if (nbytes<=0)
     {
     	port->print("0");
+    	gcs().send_text(MAV_SEVERITY_WARNING, "nbytes <0");
+
     }
     //gcs().send_text(MAV_SEVERITY_WARNING, "We have assigned uartD");
 	//port->write('<');
@@ -103,14 +126,14 @@ void AP_Ticommunication::update(void)
 	    //mavlink_system_time_t *utime;
 	    //uint64_t now = 0;
 	    //AP::rtc().get_utc_usec(now);
-	    AP_RTC &rtc = AP::rtc();
+	  /*  AP_RTC &rtc = AP::rtc();
 
 	   // int now = time_unix / 1000000;
-	    uint64_t kinda_now = 1565918797000000;
+	    uint32_t kinda_now = rtc.get_utc_usec;
 	    // rtc.set_utc_usec(kinda_now, AP_RTC::SOURCE_MAVLINK_SYSTEM_TIME);
 	       // hal.console->printf("%s: Test run %u\n", __FILE__, (unsigned)run_counter++);
-	        uint64_t now = 0;
-	        if (!rtc.get_utc_usec(now)) {
+	        uint32_t now = 0;
+	        if (!rtc.get_utc_usec(0)) {
 	        	hal.console->printf("failed to get rtc");
 	            return;
 	        }
@@ -137,14 +160,14 @@ void AP_Ticommunication::update(void)
 		port->print(&t[j]);
 		}
 		port->print(">");
-
+*/
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
          //const char *b = &c;
          //port-> print(b);
 
         if (c == '<' ) {                     // Start of one message
-        	//gcs().send_text(MAV_SEVERITY_WARNING, "we have found the start of the message");
+        //	gcs().send_text(MAV_SEVERITY_WARNING, "we have found the start of the message");
             buffer_count = 0;
 			message_start_found = true;
         }
@@ -173,6 +196,7 @@ void AP_Ticommunication::update(void)
 
 	}   else  {
 	 	gcs().send_text(MAV_SEVERITY_INFO, "we are not receiving bytes");
+	 	return;
 	 }// Endif nbytes >0
 
 	// if (is_healthy()) {
@@ -180,10 +204,10 @@ void AP_Ticommunication::update(void)
 	//	port-> print ("<1>");// Send Heartbeat <1> if connection is Healthy
 	// }
 
-
+   return;
 }
 
-bool AP_Ticommunication::check_message()
+bool AP_BattMonitor_Ticommunication::check_message()
 {
 
 
@@ -204,7 +228,7 @@ bool AP_Ticommunication::check_message()
 
 
 
-bool AP_Ticommunication::is_healthy()       // Sonin Aero: Check Signal, if Healthy return TRUE and send <1> to Ticommunication
+bool AP_BattMonitor_Ticommunication::is_healthy()       // Sonin Aero: Check Signal, if Healthy return TRUE and send <1> to Ticommunication
 {
 	if (port  && (AP_HAL::millis() - last_updated_ms) < 3000 ) {     // check if last Update is less than 3000 ms ago
 		return true;
@@ -214,7 +238,7 @@ bool AP_Ticommunication::is_healthy()       // Sonin Aero: Check Signal, if Heal
 
 
 
-int  AP_Ticommunication::get_soc() {
+int  AP_BattMonitor_Ticommunication::get_soc() {
 	//gcs().send_text(MAV_SEVERITY_WARNING, "Calculating SOC");
 	int soc;
 	char soc_buffer [2];
@@ -226,7 +250,7 @@ int  AP_Ticommunication::get_soc() {
 	return soc;
 }
 
-int AP_Ticommunication::get_remaining_flight_time () {
+int AP_BattMonitor_Ticommunication::get_remaining_flight_time () {
 
 	int remaining_flight_time;
 	char rft_buffer [3];
@@ -239,7 +263,7 @@ int AP_Ticommunication::get_remaining_flight_time () {
 	return remaining_flight_time;	// in minutes
 }
 
-int AP_Ticommunication::get_RPM () {
+int AP_BattMonitor_Ticommunication::get_RPM () {
 
 	int RPM;
 	char rpm_buffer [5];
@@ -250,6 +274,7 @@ int AP_Ticommunication::get_RPM () {
 	rpm_buffer[4]= buffer [14];
 
 	RPM = atoi(rpm_buffer);
+	//gcs().send_text(MAV_SEVERITY_WARNING, "in get RPM function");
 
 	return RPM;	// in rounds per minute
 }
@@ -271,20 +296,7 @@ AP_Ticommunication *Ticommunication()
 
 
 /// Constructor
-AP_BattMonitor_Ticommunication::AP_BattMonitor_Ticommunication(AP_BattMonitor &mon,
-                                                 AP_BattMonitor::BattMonitor_State &mon_state,
-                                                 AP_BattMonitor_Params &params) :
-    AP_BattMonitor_Backend(mon, mon_state, params)
-{
 
-
-    _state.voltage = 5.0; // show a fixed voltage of 5v
-
-
-
-    // We can tell if this is healthy with the is healthy function
-    _state.healthy = Ticommunication.is_healthy() ;
-}
 
 /*
   handle interrupt on an instance
@@ -297,7 +309,7 @@ AP_BattMonitor_Ticommunication::AP_BattMonitor_Ticommunication(AP_BattMonitor &m
 void AP_BattMonitor_Ticommunication::read()
 
 {
-	Ticommunication.update();
+	update();
 	// Most of the read() variables will be read from the Ticommunication object Ticom
 	//Ticommunication.port = hal.uartD;
 	//if (Ticommunication.is_healthy() == false){
@@ -333,26 +345,35 @@ void AP_BattMonitor_Ticommunication::read()
     _state.consumed_wh = 40;   // has to be sent from Ticom.consumedWH
 
      // We get this info from Ticom get_soc() function
-    if (Ticommunication.get_soc() == 0){ _state.state_of_charge= oldSOC;}
+    if (get_soc() == 0){ _state.state_of_charge= oldSOC;}
 
 
-    if (Ticommunication.get_soc() > 0) {
+    if (get_soc() > 0) {
     	//gcs().send_text(MAV_SEVERITY_WARNING, "SOC is bigger than 0");
-    	_state.state_of_charge = Ticommunication.get_soc();
+    	_state.state_of_charge = get_soc();
     	oldSOC=_state.state_of_charge;
     }
 
 
 //    _state.state_of_charge = Ticommunication.get_soc();  // We get this info from Ticom get_soc() function
 
-    _state.time_remaining = Ticommunication.get_remaining_flight_time(); // Get remaining flight time in minutes
-    //gcs().send_text(MAV_SEVERITY_CRITICAL, "Flight time remaining: %d min.", (int)_state.time_remaining);
+    _state.time_remaining = get_remaining_flight_time(); // Get remaining flight time in minutes
+     gcs().send_text(MAV_SEVERITY_CRITICAL, "Flight time remaining: %d min.", (int)_state.time_remaining);
 
    // } // end of else statement
 }
 
+/*static AP_BattMonitor_Ticommunication *get_singleton(void) {
+    return singleton;
+}*/
 
 
+namespace AP {
+AP_BattMonitor_Ticommunication *Ticom()
+{
+    return AP_BattMonitor_Ticommunication::get_singleton();
+}
+}
 
 
 

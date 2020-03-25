@@ -22,7 +22,7 @@
 #include <string>
 
 //#include <../Plane.h>
-
+/*
 class AP_Ticommunication {
 public:
 
@@ -61,28 +61,18 @@ public:
 
 
 private:
-    // port
-    AP_HAL::UARTDriver *port;
-    // Front End Parameters
-    //AP_Int8 type;
 
 
-
-	uint32_t last_updated_ms;
-
-    // Tracking backends
-
-
-};
+};*/
 
 
 //AP_Ticommunication Ticommunication;  // Sonin Aero creating an object of the Ticommunication Class
-
+/*
 namespace AP {
     AP_Ticommunication *Ticommunication();
 };
 
-
+*/
 
  //**********************************************************************DELETE******************************************************************
 
@@ -95,9 +85,9 @@ namespace AP {
 class AP_BattMonitor_Ticommunication : public AP_BattMonitor_Backend
 {
 public:
-	friend class AP_Ticommunication;
+	//friend class AP_Ticommunication;
 
-    AP_Ticommunication Ticommunication;  // Sonin Aero creating an object of the Ticommunication Class
+   // AP_Ticommunication Ticommunication;  // Sonin Aero creating an object of the Ticommunication Class
 
 
     /// Constructor
@@ -115,11 +105,62 @@ public:
     /// returns true if battery monitor provides current info
     bool has_current() const override { return true; }
 
-    void init(void) override {}
+    virtual void init(void) override;
 
     uint8_t oldSOC;
 
+
+	//AP_Ticommunication();  // Constructor
+    // Initializes backend
+   // void init(void);          // chkd
+
+    // Requests backend to update the frontend. Should be called at 10Hz.
+    void update();   // main loop function Sonin Aero ************************************************
+
+
+	//  check if message is valid
+
+	bool check_message();
+
+
+	char buffer[16];   // used to store incoming values
+
+
+    // Returns the State of charge
+    int get_soc() ;
+
+	// Returns remaining Flight time
+
+	int get_remaining_flight_time () ;
+
+	int get_RPM();
+
+	// Send heartbeat from Pixhawk to Ti
+
+	void send_heartbeat();
+
+
+    bool is_healthy();
+
+    static AP_BattMonitor_Ticommunication *get_singleton(void) {
+        return singleton;
+    }
+
+
 private:
+        static AP_BattMonitor_Ticommunication *singleton;
+
+    // port
+        AP_HAL::UARTDriver *port;
+        // Front End Parameters
+        //AP_Int8 type;
+
+
+
+    	uint32_t last_updated_ms;
+
+        // Tracking backends
+
 
 
 };
@@ -149,4 +190,8 @@ private:
 *
 *
  */
+
+namespace AP {
+    AP_BattMonitor_Ticommunication *Ticom();
+};
 

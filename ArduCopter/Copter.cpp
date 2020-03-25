@@ -125,6 +125,7 @@ const AP_Scheduler::Task Copter::scheduler_tasks[] = {
     SCHED_TASK_CLASS(AC_Sprayer,           &copter.sprayer,             update,           3,  90),
 #endif
     SCHED_TASK(three_hz_loop,          3,     75),
+	//SCHED_TASK(Ticomu,          3,     120),
     SCHED_TASK_CLASS(AP_ServoRelayEvents,  &copter.ServoRelayEvents,      update_events, 50,     75),
     SCHED_TASK_CLASS(AP_Baro,              &copter.barometer,           accumulate,      50,  90),
 #if AC_FENCE == ENABLED
@@ -418,6 +419,9 @@ void Copter::twentyfive_hz_logging()
 // three_hz_loop - 3.3hz loop
 void Copter::three_hz_loop()
 {
+
+
+
     // check if we've lost contact with the ground station
     failsafe_gcs_check();
 

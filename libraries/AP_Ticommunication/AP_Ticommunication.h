@@ -43,12 +43,12 @@ class AP_Ticommunication {
 public:
 
 
-	//AP_Ticommunication();  // Constructor
+	 AP_Ticommunication();  // Constructor
     // Initializes backend  
     void init(void);          // chkd
 
     // Requests backend to update the frontend. Should be called at 10Hz.
-    void update();   // main loop function Sonin Aero ************************************************
+    void update(void);   // main loop function Sonin Aero ************************************************
 	
 	
 	//  check if message is valid
@@ -56,7 +56,7 @@ public:
 	bool check_message();
     
 
-	char buffer[10];   // used to store incoming values
+	char buffer[16];   // used to store incoming values
 
 
     // Returns the State of charge
@@ -75,14 +75,19 @@ public:
 
     bool is_healthy();
 
+    static AP_Ticommunication *get_singleton() { return _singleton; }
+
+
 
 private:
+    static AP_Ticommunication *_singleton;
     // port
     AP_HAL::UARTDriver *port;
     // Front End Parameters
     //AP_Int8 type;
 	
-	
+
+
 
 	uint32_t last_updated_ms;
 
@@ -94,7 +99,7 @@ private:
 
 
 namespace AP {
-    AP_Ticommunication *Ticommunication();
+    AP_Ticommunication *Ticom();
 };
 
  
