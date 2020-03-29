@@ -80,9 +80,22 @@ void AP_RTC::set_utc_usec(uint64_t time_utc_usec, source_type type)
 bool AP_RTC::get_utc_usec(uint64_t &usec) const
 {
     if (rtc_source_type == SOURCE_NONE) {
+	   // gcs().send_text(MAV_SEVERITY_CRITICAL, "RTC Source None");
+
         return false;
     }
+
     usec = AP_HAL::micros64() + rtc_shift;
+   /* int sec= (int)(usec/1000000);
+    if (rtc_source_type == SOURCE_GPS){
+    	    gcs().send_text(MAV_SEVERITY_CRITICAL, "rtc_source_type == SOURCE_GPS %d s.", sec);
+        }
+    if (rtc_source_type == SOURCE_MAVLINK_SYSTEM_TIME){
+    	    gcs().send_text(MAV_SEVERITY_CRITICAL, "rtc_source_type == SOURCE_MAVLINK_SYSTEM_TIME %d s.", sec);
+        }
+    if (rtc_source_type == SOURCE_HW){
+    	    gcs().send_text(MAV_SEVERITY_CRITICAL, "rtc_source_type == SOURCE_HW %d s.", sec);
+        }*/
     return true;
 }
 

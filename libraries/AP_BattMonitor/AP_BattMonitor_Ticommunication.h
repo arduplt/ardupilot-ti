@@ -122,6 +122,7 @@ public:
 
 	bool check_message();
 
+    void send_timestamp();
 
 	char buffer[16];   // used to store incoming values
 

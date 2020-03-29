@@ -1,6 +1,7 @@
 #include <AP_HAL/AP_HAL.h>
 #include "AP_BattMonitor_Ticommunication.h"
 #include <GCS_MAVLink/GCS.h>
+#include <AP_RTC/AP_RTC.h>
 //#include <AP_Ticommunication/AP_Ticommunication.h>           // Sonin Aero
 //#include "AP_Ticommunication.h"
 
@@ -90,10 +91,10 @@ void AP_BattMonitor_Ticommunication::update(void)
 {
 	//port = hal.uartD;
 	//gcs().send_text(MAV_SEVERITY_WARNING, "We are in BattmonTicom update");
-	   if (port == hal.uartD)
-	 {
-	 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
-	 }
+	//   if (port == hal.uartD)
+	// {
+	// 	gcs().send_text(MAV_SEVERITY_WARNING, "port is port uartD");
+	// }
 
 
     int16_t nbytes = port->available();
@@ -108,7 +109,7 @@ void AP_BattMonitor_Ticommunication::update(void)
     if (nbytes<=0)
     {
     	port->print("0");
-    	gcs().send_text(MAV_SEVERITY_WARNING, "nbytes <0");
+    	gcs().send_text(MAV_SEVERITY_WARNING, "We are not receiving data from HC, nbytes <0");
 
     }
     //gcs().send_text(MAV_SEVERITY_WARNING, "We have assigned uartD");
@@ -122,17 +123,16 @@ void AP_BattMonitor_Ticommunication::update(void)
 	if (nbytes >0) {
 
 		//gcs().send_text(MAV_SEVERITY_WARNING, "We are receiving bytes nbytes>0");
-		port->print("<1>");
+
 	    //mavlink_system_time_t *utime;
 	    //uint64_t now = 0;
 	    //AP::rtc().get_utc_usec(now);
-	  /*  AP_RTC &rtc = AP::rtc();
+
 
 	   // int now = time_unix / 1000000;
-	    uint32_t kinda_now = rtc.get_utc_usec;
 	    // rtc.set_utc_usec(kinda_now, AP_RTC::SOURCE_MAVLINK_SYSTEM_TIME);
 	       // hal.console->printf("%s: Test run %u\n", __FILE__, (unsigned)run_counter++);
-	        uint32_t now = 0;
+	   /*     uint32_t now = 0;
 	        if (!rtc.get_utc_usec(0)) {
 	        	hal.console->printf("failed to get rtc");
 	            return;
@@ -141,7 +141,7 @@ void AP_BattMonitor_Ticommunication::update(void)
 	        if (now < kinda_now) {
 	        	hal.console->printf("time going backwards");
 	            return;
-	        }
+	        }*/
 
 	    //int time_b;
 	    //time_b = time_s/1000;
@@ -150,17 +150,10 @@ void AP_BattMonitor_Ticommunication::update(void)
 	    //char time_b[10];
 	    //time_b=	(char [10])time_s;
 	    //const char *s = &time_s;
-	    int b = now/1000000;
-	    gcs().send_text(MAV_SEVERITY_CRITICAL, "RTC EPOCH Time: %d s.", (int)b);
-	    char t[10];
-	    itoa(b , t , 10);
-		port->print("<2,");
-		for (int j=0; j< 10 ; j++)
-		{
-		port->print(&t[j]);
-		}
-		port->print(">");
-*/
+	    //int b = now/1000000;
+		//AP_RTC &rtc = AP::rtc();
+
+
     while (nbytes-- > 0) {                   // While Loop continues until all bytes in the Buffer are read
         char c = port->read();
          //const char *b = &c;
@@ -179,14 +172,24 @@ void AP_BattMonitor_Ticommunication::update(void)
         buffer[buffer_count] = c;
 		buffer_count++;
 
-		if (buffer_count==14) {
+        if (buffer_count ==3 && buffer[1]=='2' && buffer[2]=='>'){
+        	  gcs().send_text(MAV_SEVERITY_INFO, "<2> request in buffer, sending timestamp");
+              send_timestamp();
+			  message_start_found = false;
+			  buffer_count=0;
+			  continue;
+        }
+		if (buffer_count==16) {
+			//gcs().send_text(MAV_SEVERITY_INFO, "Buffer = 15 check message");
 			if (check_message ()) {
 			    // A valid message is in the buffer
-				//gcs().send_text(MAV_SEVERITY_WARNING, "A valid message is in the buffer");
+				//gcs().send_text(MAV_SEVERITY_INFO, "A valid message is in the buffer");
+				port->print("<1>");  // send <1> to HC if message is valid
 				last_updated_ms = AP_HAL::millis();
 				break;             // break the while loop
 			}
 			else {                                   // If the message is not valid, look for a new valid message
+				gcs().send_text(MAV_SEVERITY_INFO, "Message NOT Valid");
 				message_start_found = false;
 			    continue;	}
 		}
@@ -195,7 +198,7 @@ void AP_BattMonitor_Ticommunication::update(void)
 
 
 	}   else  {
-	 	gcs().send_text(MAV_SEVERITY_INFO, "we are not receiving bytes");
+	 	gcs().send_text(MAV_SEVERITY_INFO, "we are not receiving bytes from HC");
 	 	return;
 	 }// Endif nbytes >0
 
@@ -207,12 +210,36 @@ void AP_BattMonitor_Ticommunication::update(void)
    return;
 }
 
+
+void AP_BattMonitor_Ticommunication::send_timestamp(){
+			uint64_t now;
+			//mavlink_system_time_t *utime;
+			//now = &utime.time_unix_usec;
+		    AP::rtc().get_utc_usec(now); // may fail, leaving time_unix at 0
+
+	        int inow= (int)(now /1000000); // from us to s
+
+	        //port -> read
+
+		    gcs().send_text(MAV_SEVERITY_INFO, "RTC EPOCH Time: %d s.", inow);
+		    char t[10];
+			//char t[10]={'1','3','4','6','7','8','1','7','c','9'};
+		    itoa(inow , t , 10);
+			port-> print ("<2,");
+			port-> print(t);
+			/*for (int j=0; j< 10 ; j++)
+			{
+			port->print(&t[j]);
+			}*/
+			port->print(">");
+}
+
 bool AP_BattMonitor_Ticommunication::check_message()
 {
 
-
+    //if (buffer[15]!='>') return false;
 	if (buffer[0] != '<' || buffer[2] != ',' || buffer[5] != ',' || buffer[9] != ',' || buffer[15]!= '>') return false;  // Check message structure < x,xx,xxx,xxxxx>
-
+	if ( buffer[1] != '1') return false;
 	int number_index[]={1,3,4,6,7,8,10,11,12,13,14};
 
 	for (int i=0; i <= 9 ; i++)
